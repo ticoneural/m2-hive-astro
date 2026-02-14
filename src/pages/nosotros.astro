@@ -1,0 +1,143 @@
+---
+import Layout from '../layouts/Layout.astro';
+import BoardMember from '../components/BoardMember.astro';
+import CorporateTimeline from '../components/CorporateTimeline.astro';
+
+const boardMembers = [
+    {
+        name: "Carlos Monge",
+        role: "Managing Partner",
+        credentials: "MBA Finance, INCAE | 15Y Experience",
+        image: "/assets/demo/agent_1.jpg", 
+    },
+    {
+        name: "Elena Varela",
+        role: "Chief Legal Officer",
+        credentials: "LLM Corporate Law, Georgetown",
+        image: "/assets/demo/agent_2.jpg", 
+    },
+    {
+        name: "David Chen",
+        role: "Head of Analytics",
+        credentials: "MSc Data Science, MIT",
+        image: "/assets/demo/agent_1.jpg", 
+    },
+];
+
+const milestones = [
+    {
+        year: "2018",
+        title: "Foundation",
+        description: "Established as a boutique legal consultancy for real estate acquisitions in Escazú.",
+    },
+    {
+        year: "2021",
+        title: "Capital Integration",
+        description: "Merged with 'Vanguard Assets' to provide end-to-end financial structuring for high-net-worth portfolios.",
+    },
+    {
+        year: "2024",
+        title: "Digital Sovereignty",
+        description: "Launched M2 Platform v4, digitizing the closing process and integrating real-time market tax analysis.",
+    },
+    {
+        year: "2026",
+        title: "The Institution",
+        description: "Rebranded as M2 Real Estate (Titan v5), solidifying position as the GAM's primary corporate land bank.",
+    },
+];
+---
+
+<Layout title="The Firm | M2 Real Estate Institutional">
+    <div class="relative min-h-screen pt-24 pb-20 overflow-hidden">
+        <!-- Background Elements -->
+        <div class="fixed inset-0 z-0 bg-brand-primary"></div>
+        <div class="fixed top-0 left-0 h-[500px] w-full bg-gradient-to-b from-brand-surface/30 to-transparent z-0"></div>
+
+        <div class="container relative z-10 mx-auto px-6">
+            <!-- Header Section -->
+            <div class="mb-20 max-w-4xl animate-fade-in-up">
+                <h5 class="mb-4 font-sans text-xs font-bold uppercase tracking-[0.2em] text-brand-accent">
+                    Institutional Profile
+                </h5>
+                <h1 class="mb-8 font-serif text-5xl leading-tight text-brand-head md:text-6xl">
+                    We are not brokers.<br />
+                    We are
+                    <span class="text-brand-accent italic">Architects of Wealth</span>.
+                </h1>
+                <p class="text-lg leading-relaxed text-brand-text max-w-2xl border-l-2 border-brand-accent pl-6">
+                    M2 Real Estate operates at the intersection of Legal Rigor,
+                    Financial Precision, and Prime Asset Acquisition. Our mandate is
+                    simple: Secure logarithmic returns through strategic data
+                    dominance.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-16">
+                <!-- Left Column: The Board -->
+                <div class="lg:col-span-8 animate-fade-in-up delay-100">
+                    <div class="mb-12 flex items-center justify-between">
+                        <h2 class="font-serif text-3xl text-brand-head">
+                            The Board of Directors
+                        </h2>
+                        <div class="h-[1px] flex-1 bg-brand-surface ml-8"></div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        {boardMembers.map((member) => (
+                            <BoardMember {...member} />
+                        ))}
+
+                        <!-- Call to Action Tile -->
+                        <div
+                            class="flex flex-col justify-center items-center p-8 border border-brand-accent/20 rounded-sm bg-brand-surface/20 text-center hover:bg-brand-surface/40 hover:border-brand-accent/50 transition-all duration-300 cursor-pointer group animate-glow"
+                        >
+                            <h4 class="font-serif text-xl text-brand-head mb-2">
+                                Join the Institution
+                            </h4>
+                            <p class="text-sm text-brand-text mb-6 font-light">
+                                We are auditioning Senior Partners.
+                            </p>
+                            <span
+                                class="text-brand-accent text-xs font-bold uppercase tracking-widest border-b border-brand-accent pb-1 group-hover:text-white group-hover:border-white transition-colors animate-pulse"
+                                >Apply Confidential</span
+                            >
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column: History & Thesis -->
+                <div class="lg:col-span-4 space-y-16 animate-fade-in-up delay-200">
+                    <!-- Timeline -->
+                    <div>
+                        <h3 class="font-serif text-2xl text-brand-head mb-8 border-b border-brand-surface pb-4">
+                            Institutional Timeline
+                        </h3>
+                        <CorporateTimeline milestones={milestones} />
+                    </div>
+
+                    <!-- Stats -->
+                    <div class="glass-panel p-8 rounded-sm bg-brand-surface/10 border border-brand-accent/10">
+                        <h3 class="font-serif text-2xl text-brand-head mb-6">
+                            Key Metrics
+                        </h3>
+                        <div class="space-y-8">
+                            <div class="group">
+                                <span class="block text-4xl font-serif text-brand-accent group-hover:scale-110 transition-transform origin-left">$42M+</span>
+                                <span class="text-brand-text text-xs uppercase tracking-widest opacity-70">Assets Under Management</span>
+                            </div>
+                            <div class="group">
+                                <span class="block text-4xl font-serif text-brand-accent group-hover:scale-110 transition-transform origin-left">140+</span>
+                                <span class="text-brand-text text-xs uppercase tracking-widest opacity-70">Corporate Closings</span>
+                            </div>
+                            <div class="group">
+                                <span class="block text-4xl font-serif text-brand-accent group-hover:scale-110 transition-transform origin-left">0%</span>
+                                <span class="text-brand-text text-xs uppercase tracking-widest opacity-70">Legal Incidents</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</Layout>

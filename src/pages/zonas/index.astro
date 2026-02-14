@@ -1,0 +1,83 @@
+---
+import Layout from '../../layouts/Layout.astro';
+
+let categories = [];
+let error = null;
+
+try {
+  const response = await fetch('https://api-m2.agenticantnest.com/api/v1/categories');
+  if (!response.ok) {
+    throw new Error(`Failed to fetch categories: ${response.statusText}`);
+  }
+  categories = await response.json();
+} catch (e) {
+  console.error(e);
+  error = "No se pudieron cargar las zonas en este momento.";
+}
+
+// Slugify helper
+const slugify = (text: string) => text.toLowerCase().replace(/ /g, '-').replace(/[^\w-]+/g, '');
+---
+
+<Layout title="Zonas Exclusivas | M2 Real Estate">
+    <div class="bg-white min-h-screen py-24 relative overflow-hidden">
+        <!-- Abstract Background -->
+        <div class="absolute inset-0 bg-[url('/assets/grid-pattern.svg')] opacity-[0.02] pointer-events-none"></div>
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="text-center mb-16 animate-fade-in-up">
+                <span class="text-[10px] font-bold uppercase tracking-[0.3em] text-brand-accent mb-4 block">
+                    Territorios Seleccionados
+                </span>
+                <h1 class="text-4xl md:text-5xl font-serif font-bold text-brand-surface mb-6">
+                    Explora por Zona
+                </h1>
+                <p class="text-lg text-gray-500 max-w-2xl mx-auto font-light leading-relaxed">
+                    Descubra las comunidades más exclusivas y con mayor plusvalía del Gran Área Metropolitana.
+                </p>
+            </div>
+
+            {error ? (
+                <div class="text-center py-12 bg-red-50 text-red-600 rounded-lg border border-red-200">
+                    <p>{error}</p>
+                </div>
+            ) : categories.length > 0 ? (
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                    {categories.map((cat) => (
+                        <a
+                            href={`/propiedades?category=${cat.name}`}
+                            class="block bg-white rounded-sm shadow-sm hover:shadow-2xl hover:shadow-brand-accent/10 transition-all duration-500 p-10 border border-gray-100 group relative overflow-hidden animate-fade-in-up"
+                        >
+                            <div
+                                class="absolute top-0 left-0 w-1 h-full bg-brand-accent transform -translate-x-1 group-hover:translate-x-0 transition-transform duration-500"
+                            ></div>
+
+                            <h2
+                                class="text-3xl font-serif text-brand-surface group-hover:translate-x-2 transition-transform duration-500 mb-4"
+                            >
+                                {cat.name}
+                            </h2>
+
+                            <div
+                                class="flex items-center gap-3 group-hover:translate-x-2 transition-transform duration-500 delay-100"
+                            >
+                                <span class="w-1.5 h-1.5 rounded-full bg-brand-accent animate-pulse group-hover:scale-150 transition-transform"></span>
+                                <p
+                                    class="text-gray-400 text-[10px] font-bold uppercase tracking-[0.2em]"
+                                >
+                                    {cat.count} {cat.count === 1 ? "Propiedad Disponible" : "Propiedades Disponibles"}
+                                </p>
+                            </div>
+                        </a>
+                    ))}
+                </div>
+            ) : (
+                <div
+                    class="text-center py-24 border border-dashed border-gray-200 rounded-sm bg-gray-50/50"
+                >
+                    <p class="text-gray-400 font-serif italic italic">Aún no hay zonas configuradas en el sistema.</p>
+                </div>
+            )}
+        </div>
+    </div>
+</Layout>

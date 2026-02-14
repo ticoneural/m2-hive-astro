@@ -1,0 +1,71 @@
+---
+interface Props {
+	images: string[];
+	title: string;
+}
+
+const { images, title } = Astro.props;
+---
+
+<div class="space-y-4 gallery-container">
+	<h3 class="font-serif text-2xl text-brand-head border-b border-brand-surface pb-4 mb-8">
+		Evidencia Visual
+	</h3>
+
+	{images.length === 0 ? (
+		<div class="p-12 text-center border border-brand-surface bg-brand-surface/20 rounded-sm">
+			<span class="text-brand-text/50 font-serif italic">Acceso Restringido. Solicite informe privado para planos.</span>
+		</div>
+	) : (
+		<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+			<!-- Primary Image (Large) -->
+			<div class="md:col-span-2 aspect-video relative overflow-hidden group rounded-sm cursor-pointer" id="main-image-container">
+				<img
+					src={images[0]}
+					alt={`${title} Primary`}
+					id="main-image"
+					class="w-full h-full object-cover transition-transform duration-1000 ease-out-expo group-hover:scale-105"
+				/>
+				<div class="absolute inset-0 bg-brand-primary/20 group-hover:bg-transparent transition-colors duration-500 pointer-events-none"></div>
+			</div>
+
+			<!-- Secondary Grids -->
+			{images.slice(0, 5).map((img, i) => (
+				<div 
+					class="aspect-[4/3] relative overflow-hidden group rounded-sm cursor-pointer thumbnail"
+					data-image={img}
+				>
+					<img
+						src={img}
+						alt={`${title} Detail ${i + 1}`}
+						class={`w-full h-full object-cover transition-transform duration-700 ease-out-expo group-hover:scale-110 ${i === 0 ? 'ring-2 ring-brand-accent' : ''}`}
+					/>
+				</div>
+			))}
+		</div>
+	)}
+</div>
+
+<script>
+	// Simple Vanilla JS for Image Switching
+	const thumbnails = document.querySelectorAll('.thumbnail');
+	const mainImage = document.getElementById('main-image') as HTMLImageElement;
+
+	thumbnails.forEach(thumb => {
+		thumb.addEventListener('click', () => {
+			const newSrc = thumb.getAttribute('data-image');
+			if (mainImage && newSrc) {
+				// Fade out effect could be added here
+				mainImage.style.opacity = '0';
+				setTimeout(() => {
+					mainImage.src = newSrc;
+					mainImage.style.opacity = '1';
+				}, 200);
+				
+				// Update active state
+				thumbnails.forEach(t => t.querySelector('img')?.classList.remove('ring-2', 'ring-brand-accent'));
+				thumb.querySelector('img')?.classList.add('ring-2', 'ring-brand-accent');
+			}
+		});
+	});
+</script>

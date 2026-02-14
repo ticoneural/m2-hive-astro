@@ -1,0 +1,44 @@
+---
+import { Shield, CheckCircle } from 'lucide-astro';
+
+interface Props {
+	type?: "sugef" | "verified";
+}
+
+const { type = "sugef" } = Astro.props;
+
+const config = type === "sugef" ? {
+	label: "Entidad SUGEF",
+	sub: "Sujeto Obligado",
+	bg: "bg-brand-primary",
+	border: "border-brand-accent",
+	text: "text-brand-accent",
+	Icon: Shield
+} : {
+	label: "M2 Verified",
+	sub: "Legal Check",
+	bg: "bg-emerald-900/30",
+	border: "border-emerald-500/50",
+	text: "text-emerald-400",
+	Icon: CheckCircle
+};
+
+const { Icon } = config;
+---
+
+<div
+    class={`inline-flex items-center gap-3 px-4 py-2 rounded-lg border backdrop-blur-md transition-all duration-400 hover:scale-105 ${config.bg} ${config.border}`}
+>
+    <Icon class={`w-5 h-5 ${config.text}`} />
+    <div class="flex flex-col leading-none">
+        <span
+            class="text-[10px] uppercase tracking-widest text-brand-text opacity-80"
+            >{config.sub}</span
+        >
+        <span
+            class={`font-serif font-semibold text-sm ${config.text === 'text-brand-accent' ? 'text-white' : config.text}`}
+        >
+            {config.label}
+        </span>
+    </div>
+</div>

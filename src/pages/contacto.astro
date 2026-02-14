@@ -1,0 +1,154 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="Contacto | M2 Real Estate">
+    <div class="bg-white min-h-screen py-24 relative overflow-hidden">
+        <!-- Abstract Background -->
+        <div class="absolute inset-0 bg-[url('/assets/grid-pattern.svg')] opacity-[0.02] pointer-events-none"></div>
+
+        <div class="max-w-6xl mx-auto px-6 relative z-10">
+            <div class="text-center mb-20 animate-fade-in-up">
+                <span class="inline-flex items-center gap-2 border border-brand-accent/50 px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-[0.3em] text-brand-accent bg-white mb-6 shadow-sm">
+                    Canal Seguro & Encriptado
+                </span>
+                <h1 class="text-4xl md:text-6xl font-serif font-bold text-brand-surface tracking-tight">
+                    Contacto Privado
+                </h1>
+                <p class="mt-6 text-gray-500 max-w-xl mx-auto font-light leading-loose">
+                    Inicie una conversación confidencial con nuestro equipo de asesores senior para la gestión de sus activos inmobiliarios.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-16">
+                <!-- Info Side -->
+                <div class="md:col-span-4 space-y-8 animate-fade-in-up delay-100">
+                    <div class="bg-gray-50/50 p-10 rounded-sm border-l-4 border-l-brand-accent shadow-sm">
+                        <h3 class="font-serif text-xl text-brand-surface mb-8">Oficinas Corporativas</h3>
+                        <div class="space-y-6 text-sm text-gray-600 leading-relaxed font-light">
+                            <p class="flex flex-col">
+                                <span class="font-bold text-brand-surface uppercase text-[10px] tracking-widest mb-1">Ubicación</span>
+                                Plaza Tempo, Escazú<br />San José, Costa Rica
+                            </p>
+                            <p class="flex flex-col">
+                                <span class="font-bold text-brand-surface uppercase text-[10px] tracking-widest mb-1">Directo WhatsApp</span>
+                                <span class="text-brand-accent font-serif text-xl">+506 8733 2630</span>
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="p-10 border border-gray-100 rounded-sm bg-white shadow-sm">
+                        <h4 class="font-bold text-[10px] uppercase tracking-[0.2em] text-brand-surface mb-8 border-b border-gray-100 pb-4">
+                            Protocolo de Seguridad
+                        </h4>
+                        <ul class="space-y-5 text-xs text-gray-500 font-medium">
+                            <li class="flex items-center gap-4 group">
+                                <span class="w-1.5 h-1.5 rounded-full bg-green-500 group-hover:scale-150 transition-transform"></span>
+                                <span>Identidad Verificada</span>
+                            </li>
+                            <li class="flex items-center gap-4 group">
+                                <span class="w-1.5 h-1.5 rounded-full bg-green-500 group-hover:scale-150 transition-transform"></span>
+                                <span>Cumplimiento Normativo SUGEF</span>
+                            </li>
+                            <li class="flex items-center gap-4 group">
+                                <span class="w-1.5 h-1.5 rounded-full bg-green-500 group-hover:scale-150 transition-transform"></span>
+                                <span>Confidencialidad Estricta</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Form Side -->
+                <div class="md:col-span-8 animate-fade-in-up delay-200">
+                    <div class="bg-white p-8 md:p-12 rounded-sm shadow-2xl shadow-brand-accent/5 border border-gray-100 relative">
+                        <div id="contact-success" class="hidden h-full flex flex-col justify-center items-center text-center py-12 animate-fade-in">
+                            <div class="w-24 h-24 bg-green-50 rounded-full flex items-center justify-center text-green-600 mb-8 shadow-inner">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                </svg>
+                            </div>
+                            <h3 class="text-3xl font-serif text-brand-surface mb-4">Mensaje Recibido</h3>
+                            <p class="text-gray-500 mb-10 max-w-sm font-light">
+                                Su solicitud ha sido procesada mediante nuestros protocolos seguros. Un asesor senior le contactará en breve.
+                            </p>
+                            <button id="reset-form" class="text-brand-accent font-bold uppercase text-[10px] tracking-[0.2em] hover:text-brand-surface transition-all border-b border-brand-accent pb-1">
+                                Enviar otra consulta
+                            </button>
+                        </div>
+
+                        <form id="contact-form" class="space-y-8">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                <div class="space-y-2">
+                                    <label for="name" class="block text-[10px] font-bold uppercase tracking-widest text-gray-400">Nombre Completo</label>
+                                    <input type="text" name="name" id="name" required class="w-full bg-gray-50 border border-gray-100 text-brand-surface p-4 rounded-none focus:border-brand-accent outline-none transition-all font-serif italic" />
+                                </div>
+                                <div class="space-y-2">
+                                    <label for="phone" class="block text-[10px] font-bold uppercase tracking-widest text-gray-400">Canal de Retorno (Tel/WA)</label>
+                                    <input type="tel" name="phone" id="phone" required class="w-full bg-gray-50 border border-gray-100 text-brand-surface p-4 rounded-none focus:border-brand-accent outline-none transition-all font-mono" />
+                                </div>
+                            </div>
+
+                            <div class="space-y-2">
+                                <label for="allocation" class="block text-[10px] font-bold uppercase tracking-widest text-gray-400">Nivel de Inversión (USD)</label>
+                                <select name="allocation" id="allocation" class="w-full bg-gray-50 border border-gray-100 text-brand-surface p-4 rounded-none focus:border-brand-accent outline-none transition-all font-serif">
+                                    <option value="under-500k">Menos de $500k</option>
+                                    <option value="500k-2m">$500k - $2M</option>
+                                    <option value="2m-plus">$2M+ (Institucional)</option>
+                                    <option value="advisory">Asesoría / Consultoría</option>
+                                </select>
+                            </div>
+
+                            <div class="space-y-2">
+                                <label for="message" class="block text-[10px] font-bold uppercase tracking-widest text-gray-400">Breve Briefing</label>
+                                <textarea name="message" id="message" rows="5" required class="w-full bg-gray-50 border border-gray-100 text-brand-surface p-4 rounded-none focus:border-brand-accent outline-none transition-all font-serif leading-relaxed"></textarea>
+                            </div>
+
+                            <button type="submit" id="submit-btn" class="w-full bg-brand-surface text-white font-bold py-5 uppercase tracking-[0.3em] hover:bg-brand-accent transition-all duration-500 flex items-center justify-center gap-4 text-[10px] shadow-xl shadow-brand-surface/20">
+                                <span id="btn-text">Iniciar Transmisión Segura</span>
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 transition-transform group-hover:translate-x-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                                </svg>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</Layout>
+
+<script>
+    const form = document.getElementById('contact-form') as HTMLFormElement;
+    const successDiv = document.getElementById('contact-success');
+    const resetBtn = document.getElementById('reset-form');
+    const submitBtn = document.getElementById('submit-btn');
+    const btnText = document.getElementById('btn-text');
+
+    if (form && successDiv) {
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if (submitBtn && btnText) {
+                submitBtn.setAttribute('disabled', 'true');
+                btnText.innerText = "Encriptando Datos...";
+            }
+
+            // Simulación de envío (mientras se habilita el endpoint en Hive)
+            setTimeout(() => {
+                form.classList.add('hidden');
+                successDiv.classList.remove('hidden');
+            }, 1500);
+        });
+    }
+
+    if (resetBtn && form && successDiv) {
+        resetBtn.addEventListener('click', () => {
+            form.classList.remove('hidden');
+            successDiv.classList.add('hidden');
+            form.reset();
+            if (submitBtn && btnText) {
+                submitBtn.removeAttribute('disabled');
+                btnText.innerText = "Iniciar Transmisión Segura";
+            }
+        });
+    }
+</script>

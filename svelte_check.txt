@@ -1,0 +1,64 @@
+﻿Loading svelte-check in workspace: c:\Users\3lite\Desktop\M2 Real State\web
+Getting Svelte diagnostics...
+
+c:\Users\3lite\Desktop\M2 Real State\web\[32msrc\routes\propiedades\+page.server.ts[39m:61:45
+[31mError[39m: Property 'total' does not exist on type '{}'. 
+[36m    const countResult = db.prepare(countSql).get(...countParams);
+    const count = countResult ? countResult.[35mtotal[36m : 0;[39m
+
+c:\Users\3lite\Desktop\M2 Real State\web\[32msrc\routes\zonas\[slug]\+page.server.ts[39m:25:17
+[31mError[39m: Property 'id' does not exist on type '{}'. 
+[36m        ORDER BY l.published_at DESC
+    `).all(area.[35mid[36m);[39m
+
+c:\Users\3lite\Desktop\M2 Real State\web\[32msrc\routes\admin\properties\[id]\+page.svelte[39m:87:35
+[31mError[39m: Cannot find name 'listing'. (ts)
+[36m                        value="hidden"
+                        selected={[35mlisting[36m?.status === "hidden"}>Hidden</option
+                    >[39m
+
+c:\Users\3lite\Desktop\M2 Real State\web\[32msrc\routes\admin\properties\[id]\+page.svelte[39m:280:18
+[31mError[39m: Cannot find name 'mode'. (ts)
+[36m        >
+            {#if [35mmode[36m === "edit"}
+                <button[39m
+
+c:\Users\3lite\Desktop\M2 Real State\web\[32msrc\routes\admin\properties\[id]\+page.svelte[39m:296:18
+[31mError[39m: Cannot find name 'mode'. (ts)
+[36m                <Save size={18} />
+                {[35mmode[36m === "create" ? "Create Asset" : "Save Changes"}
+            </button>[39m
+
+c:\Users\3lite\Desktop\M2 Real State\web\[32msrc\routes\zonas\[slug]\+page.svelte[39m:20:31
+[31mError[39m: Property 'name' does not exist on type '{}'. (ts)
+[36m<svelte:head>
+    <title>Inversi├│n en {area.[35mname[36m} | M2 Real Estate</title>
+</svelte:head>[39m
+
+c:\Users\3lite\Desktop\M2 Real State\web\[32msrc\routes\zonas\[slug]\+page.svelte[39m:44:27
+[31mError[39m: Property 'name' does not exist on type '{}'. (ts)
+[36m                <h1 class="text-5xl md:text-6xl font-serif font-bold mb-6">
+                    {area.[35mname[36m}
+                </h1>[39m
+
+c:\Users\3lite\Desktop\M2 Real State\web\[32msrc\routes\zonas\[slug]\+page.svelte[39m:96:40
+[31mError[39m: Property 'name' does not exist on type '{}'. (ts)
+[36m            <h2 class="font-bold text-3xl text-brand-secondary">
+                Oportunidades en {area.[35mname[36m}
+            </h2>[39m
+
+c:\Users\3lite\Desktop\M2 Real State\web\[32msrc\routes\zonas\[slug]\+page.svelte[39m:118:38
+[31mError[39m: Property 'name' does not exist on type '{}'. (ts)
+[36m                                listing.areas?.name ||
+                                area.[35mname[36m,
+                            image:[39m
+
+c:\Users\3lite\Desktop\M2 Real State\web\[32msrc\routes\zonas\[slug]\+page.svelte[39m:122:119
+[31mError[39m: Property 'name' does not exist on type '{}'. (ts)
+[36m                                "/assets/placeholder-house.jpg",
+                            whatsapp_link: `https://wa.me/50687332630?text=Consulta sobre: ${listing.title} en ${area.[35mname[36m}`,
+                        }}[39m
+
+====================================
+[31msvelte-check found 10 errors and 5 warnings in 6 files
+[39m

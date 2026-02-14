@@ -1,0 +1,40 @@
+---
+interface Milestone {
+	year: string;
+	title: string;
+	description: string;
+}
+
+interface Props {
+	milestones: Milestone[];
+}
+
+const { milestones = [] } = Astro.props;
+---
+
+<div class="relative border-l border-brand-accent/30 ml-4 space-y-12 py-4">
+	{milestones.map((milestone) => (
+		<div class="relative pl-8 group">
+			<!-- Node -->
+			<div
+				class="absolute -left-[5px] top-2 h-2.5 w-2.5 rounded-full bg-brand-surface border border-brand-accent transition-all duration-400 group-hover:scale-125 group-hover:bg-brand-accent group-hover:shadow-glow"
+			></div>
+
+			<!-- Content -->
+			<div class="transition-all duration-400 group-hover:translate-x-2">
+				<span
+					class="font-sans text-sm font-bold text-brand-accent mb-1 block"
+					>{milestone.year}</span
+				>
+				<h4 class="font-serif text-xl text-brand-head mb-2">
+					{milestone.title}
+				</h4>
+				<p
+					class="font-sans text-brand-text text-sm leading-relaxed max-w-md"
+				>
+					{milestone.description}
+				</p>
+			</div>
+		</div>
+	))}
+</div>
