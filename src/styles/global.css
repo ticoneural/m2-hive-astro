@@ -37,7 +37,6 @@ h4,
 h5,
 h6 {
     font-family: 'Playfair Display', serif;
-    color: #F8FAFC;
     letter-spacing: -0.02em;
 }
 
@@ -87,6 +86,26 @@ h6 {
 
 .animate-scale-reveal {
     animation: scale-reveal 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Shimmer Animation for Skeletons */
+@keyframes shimmer {
+    0% {
+        background-position: -200% 0;
+    }
+
+    100% {
+        background-position: 200% 0;
+    }
+}
+
+.animate-shimmer {
+    animation: shimmer 2.5s infinite linear;
+}
+
+/* Custom Ease */
+.ease-out-expo {
+    transition-timing-function: cubic-bezier(0.19, 1, 0.22, 1);
 }
 
 /* Stagger Delays */

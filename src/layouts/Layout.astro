@@ -1,56 +1,72 @@
 ---
-import '../styles/global.css';
-import Navbar from '../components/Navbar.astro';
-import Footer from '../components/Footer.astro';
+import "../styles/global.css";
+import Navbar from "../components/Navbar.astro";
+import Footer from "../components/Footer.astro";
+import { ViewTransitions } from "astro:transitions";
 
 interface Props {
-	title: string;
-	description?: string;
-	image?: string;
+    title: string;
+    description?: string;
+    image?: string;
+    noIndex?: boolean;
 }
 
-const { title, description = "Propiedades exclusivas en Costa Rica.", image = "/og-default.jpg" } = Astro.props;
+const {
+    title,
+    description = "Propiedades exclusivas en Costa Rica.",
+    image = "/og-default.jpg",
+    noIndex = false,
+} = Astro.props;
 ---
 
 <!doctype html>
 <html lang="es">
-	<head>
-		<meta charset="UTF-8" />
-		<meta name="description" content={description} />
-		<meta name="viewport" content="width=device-width" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<meta name="generator" content={Astro.generator} />
-		
-		<!-- Open Graph / Facebook -->
-		<meta property="og:type" content="website" />
-		<meta property="og:url" content={Astro.url} />
-		<meta property="og:title" content={title} />
-		<meta property="og:description" content={description} />
-		<meta property="og:image" content={image} />
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="description" content={description} />
+        <meta name="viewport" content="width=device-width" />
+        <link rel="icon" type="image/png" href="/favicon.png" />
+        <meta name="generator" content={Astro.generator} />
 
-		<!-- Twitter -->
-		<meta property="twitter:card" content="summary_large_image" />
-		<meta property="twitter:url" content={Astro.url} />
-		<meta property="twitter:title" content={title} />
-		<meta property="twitter:description" content={description} />
-		<meta property="twitter:image" content={image} />
+        <ViewTransitions />
 
-		<title>{title}</title>
+        {noIndex && <meta name="robots" content="noindex, nofollow" />}
 
-		<!-- Google Fonts Preconnect -->
-		<link rel="preconnect" href="https://fonts.googleapis.com">
-		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-		<link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&family=Playfair+Display:wght@400;600;700&display=swap" rel="stylesheet">
-	</head>
-	<body class="bg-brand-primary text-brand-text min-h-screen flex flex-col selection:bg-brand-accent selection:text-brand-primary">
-		<Navbar />
-		
-		<main class="flex-grow">
-			<slot />
-		</main>
+        <!-- Open Graph / Facebook -->
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content={Astro.url} />
+        <meta property="og:title" content={title} />
+        <meta property="og:description" content={description} />
+        <meta property="og:image" content={image} />
 
-		<Footer />
-	</body>
+        <!-- Twitter -->
+        <meta property="twitter:card" content="summary_large_image" />
+        <meta property="twitter:url" content={Astro.url} />
+        <meta property="twitter:title" content={title} />
+        <meta property="twitter:description" content={description} />
+        <meta property="twitter:image" content={image} />
+
+        <title>{title}</title>
+
+        <!-- Google Fonts Preconnect -->
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&family=Playfair+Display:wght@400;600;700&display=swap"
+            rel="stylesheet"
+        />
+    </head>
+    <body
+        class="bg-brand-primary text-brand-text min-h-screen flex flex-col selection:bg-brand-accent selection:text-brand-primary"
+    >
+        <Navbar />
+
+        <main class="flex-grow">
+            <slot />
+        </main>
+
+        <Footer />
+    </body>
 </html>
 
 <style is:global>
@@ -72,19 +88,37 @@ const { title, description = "Propiedades exclusivas en Costa Rica.", image = "/
 
     /* Animations Library */
     @keyframes fade-in-up {
-        from { opacity: 0; transform: translateY(20px); }
-        to { opacity: 1; transform: translateY(0); }
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
     }
     .animate-fade-in-up {
         animation: fade-in-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     }
-    .delay-100 { animation-delay: 0.1s; }
-    .delay-200 { animation-delay: 0.2s; }
-    .delay-300 { animation-delay: 0.3s; }
+    .delay-100 {
+        animation-delay: 0.1s;
+    }
+    .delay-200 {
+        animation-delay: 0.2s;
+    }
+    .delay-300 {
+        animation-delay: 0.3s;
+    }
 
     @keyframes scale-reveal {
-        from { opacity: 0; transform: scale(1.05); }
-        to { opacity: 1; transform: scale(1); }
+        from {
+            opacity: 0;
+            transform: scale(1.05);
+        }
+        to {
+            opacity: 1;
+            transform: scale(1);
+        }
     }
     .animate-scale-reveal {
         animation: scale-reveal 2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
@@ -95,7 +129,11 @@ const { title, description = "Propiedades exclusivas en Costa Rica.", image = "/
         animation: glow 4s infinite alternate;
     }
     @keyframes glow {
-        from { box-shadow: 0 0 10px rgba(212,175,55,0.05); }
-        to { box-shadow: 0 0 30px rgba(212,175,55,0.15); }
+        from {
+            box-shadow: 0 0 10px rgba(212, 175, 55, 0.05);
+        }
+        to {
+            box-shadow: 0 0 30px rgba(212, 175, 55, 0.15);
+        }
     }
 </style>

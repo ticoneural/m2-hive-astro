@@ -1,147 +1,514 @@
 ---
-import Layout from '../layouts/Layout.astro';
-import ListingCard from '../components/ListingCard.astro';
-import type { Product } from '../types';
+import Layout from "../layouts/Layout.astro";
+import ListingCard from "../components/ListingCard.astro";
+import type { Product, Category } from "../types";
+import { getProducts, getCategories } from "../lib/api";
 
 // Get query params for filtering
 const url = new URL(Astro.request.url);
 const selectedCategory = url.searchParams.get("category") || "";
+const selectedSubcategory = url.searchParams.get("subcategory") || "";
+const transactionType = url.searchParams.get("transaction_type") || "";
+const propertyType = url.searchParams.get("property_type") || "";
 const minPrice = url.searchParams.get("minPrice") || "";
 const maxPrice = url.searchParams.get("maxPrice") || "";
 
 let products: Product[] = [];
-let categories: { name: string; count: number }[] = [];
+let categories: Category[] = [];
 let error = null;
 
 try {
-  // Fetch Products with filters
-  let apiPath = 'https://api-m2.agenticantnest.com/api/v1/products';
-  const params = new URLSearchParams();
-  if (selectedCategory) params.append('category', selectedCategory);
-  
-  const response = await fetch(`${apiPath}?${params.toString()}`);
-  if (!response.ok) throw new Error(`API Error: ${response.statusText}`);
-  const data = await response.json();
-  products = data.data || [];
+    // Fetch from cached service
+    const [allProductsData, rawCategories] = await Promise.all([
+        getProducts(),
+        getCategories(),
+    ]);
 
-  // Filter prices client-side or server-side (Hive API v0.7.2 might not support min/max yet)
-  if (minPrice) products = products.filter(p => p.price >= parseFloat(minPrice));
-  if (maxPrice) products = products.filter(p => p.price <= parseFloat(maxPrice));
+    // Deduplicate categories logic
+    const uniqueCats = new Map<string, Category>();
 
-  // Fetch Categories for Filter Sidebar
-  const catRes = await fetch('https://api-m2.agenticantnest.com/api/v1/categories');
-  categories = await catRes.json();
+    rawCategories.forEach((cat) => {
+        // Normalize key to catch "San Jose", "San José", "san jose" as duplicates
+        const key = cat.name
+            .trim()
+            .toLowerCase()
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "");
+
+        if (uniqueCats.has(key)) {
+            const existing = uniqueCats.get(key)!;
+            // Merge counts
+            existing.count += cat.count;
+            // Merge subcategories if present
+            if (cat.subcategories) {
+                existing.subcategories = [
+                    ...(existing.subcategories || []),
+                    ...cat.subcategories,
+                ];
+            }
+            // Prefer the name with more visual complexity (e.g. "San José" over "san jose")
+            // Heuristic: More uppercase letters, or presence of accents (length might be same)
+            // Simple check: if current name is strictly different and looks "better" (e.g. Title Case vs lower)
+            if (cat.name !== existing.name) {
+                if (
+                    cat.name[0] === cat.name[0].toUpperCase() &&
+                    existing.name[0] !== existing.name[0].toUpperCase()
+                ) {
+                    existing.name = cat.name;
+                } else if (cat.name.length > existing.name.length) {
+                    // Often accented chars might make it behave differently or simply equal length.
+                    // Let's rely on string comparison or just first wins if acceptable, but let's try to pick the "Capitalized" one.
+                    existing.name = cat.name;
+                }
+            }
+        } else {
+            uniqueCats.set(key, { ...cat });
+        }
+    });
+
+    categories = Array.from(uniqueCats.values());
+
+    // Client-side Price Filtering
+    const allProducts: Product[] = allProductsData || [];
+
+    products = allProducts.filter((p) => {
+        // Price Filter
+        const price = Number(p.price);
+        const min = minPrice ? parseFloat(minPrice) : -Infinity;
+        const max = maxPrice ? parseFloat(maxPrice) : Infinity;
+        if (price < min || price > max) return false;
+
+        // Transaction Type Filter
+        if (transactionType && transactionType !== "Todos") {
+            if (p.transaction_type !== transactionType) return false;
+        }
+
+        // Property Type Filter
+        if (
+            propertyType &&
+            propertyType !== "Todos" &&
+            propertyType !== "Cualquira"
+        ) {
+            if (p.property_type !== propertyType) return false;
+        }
+
+        // Category (Location) Filter
+        // Note: API might filter categories, but we double-check or handle if API fails
+        // We compare normalized to be safe
+        if (selectedCategory && selectedCategory !== "Todas las regiones") {
+            // Heuristic: Check if category_name includes or equals
+            if (p.category_name !== selectedCategory) return false;
+        }
+
+        if (selectedSubcategory && selectedSubcategory !== "Todas las zonas") {
+            if (p.subcategory_name !== selectedSubcategory) return false;
+        }
+
+        return true;
+    });
 } catch (e) {
-  console.error(e);
-  error = "Servicio temporalmente no disponible.";
+    console.error(e);
+    error = "Servicio de catálogo temporalmente no disponible.";
 }
 
-const title = "Catálogo de Propiedades | M2 Real Estate";
+const title = "Portafolio de Propiedades Exclusivas | M2 Real Estate";
 ---
 
 <Layout title={title}>
-    <div class="bg-white min-h-screen py-24 relative overflow-hidden">
+    <div class="bg-white min-h-screen pt-40 pb-24 relative overflow-hidden">
         <div class="max-w-7xl mx-auto px-6 lg:px-8">
             <!-- Header -->
-            <div class="flex flex-col md:flex-row justify-between items-end mb-16 border-b border-gray-100 pb-8">
-                <div>
-                    <span class="text-[10px] font-bold uppercase tracking-[0.3em] text-brand-accent mb-3 block">
-                        Inventario Seleccionado
+            <div
+                class="flex flex-col md:flex-row justify-between items-end mb-20 border-b border-gray-100 pb-12"
+            >
+                <div class="space-y-4">
+                    <span
+                        class="text-xs font-bold uppercase tracking-[0.5em] text-brand-accent block animate-fade-in"
+                    >
+                        PORTAFOLIO DE INVERSIÓN
                     </span>
-                    <h1 class="text-4xl font-serif text-brand-surface">
-                        Propiedades <span class="text-gray-300 font-light">/ {selectedCategory || 'Global'}</span>
+                    <h1
+                        class="text-5xl font-serif text-[#0A192F] leading-tight"
+                    >
+                        Propiedades <span
+                            class="text-gray-300 font-light italic text-4xl"
+                            >Exclusivas</span
+                        >
                     </h1>
                 </div>
-                <div class="text-right hidden md:block">
-                    <span class="block text-3xl font-serif text-brand-surface tracking-tighter">{products.length}</span>
-                    <span class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Activos Disponibles</span>
+                <div
+                    class="text-right hidden md:block border-l border-gray-100 pl-12"
+                >
+                    <span
+                        class="block text-5xl font-serif text-[#0A192F] tracking-tighter tabular-nums"
+                        >{products.length}</span
+                    >
+                    <span
+                        class="text-xs text-gray-400 font-bold uppercase tracking-widest mt-2 block"
+                        >Unidades Disponibles</span
+                    >
                 </div>
             </div>
 
             <div class="flex flex-col lg:flex-row gap-16">
                 <!-- Sidebar Filters -->
                 <aside class="w-full lg:w-80 shrink-0">
-                    <div class="bg-gray-50/50 p-8 rounded-sm border border-gray-100 sticky top-32">
-                        <h2 class="font-serif text-xl text-brand-surface mb-8 border-b border-gray-200 pb-4">
-                            Sistemas de Filtrado
+                    <div
+                        class="bg-[#F8FAFC] p-10 rounded-sm border border-gray-100 sticky top-40 shadow-sm"
+                    >
+                        <h2
+                            class="font-serif text-2xl text-[#0A192F] mb-10 border-b border-gray-200 pb-6"
+                        >
+                            Filtros de Búsqueda
                         </h2>
 
-                        <form method="GET" action="/propiedades" class="space-y-8">
-                            <!-- Category Filter -->
-                            <div>
-                                <label class="block text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-3">Zona o Estilo</label>
-                                <select 
-                                    name="category"
-                                    class="w-full bg-white border border-gray-200 text-brand-surface text-sm p-3 rounded-none outline-none focus:border-brand-accent transition-all font-serif"
+                        <form
+                            method="GET"
+                            action="/propiedades"
+                            class="space-y-10"
+                        >
+                            <!-- Transaction Type Filter -->
+                            <div class="space-y-4">
+                                <label
+                                    class="block text-xs font-bold uppercase tracking-[0.2em] text-gray-400"
                                 >
-                                    <option value="">Todas las categorías</option>
-                                    {categories.map(cat => (
-                                        <option value={cat.name} selected={selectedCategory === cat.name}>{cat.name} ({cat.count})</option>
-                                    ))}
-                                </select>
-                            </div>
-
-                            <!-- Price Range -->
-                            <div>
-                                <label class="block text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-3">Rango de Capital (USD)</label>
-                                <div class="grid grid-cols-2 gap-3">
-                                    <input 
-                                        type="number" 
-                                        name="minPrice" 
-                                        placeholder="Mínimo" 
-                                        value={minPrice}
-                                        class="w-full bg-white border border-gray-200 text-sm p-3 rounded-none outline-none focus:border-brand-accent font-mono" 
-                                    />
-                                    <input 
-                                        type="number" 
-                                        name="maxPrice" 
-                                        placeholder="Máximo" 
-                                        value={maxPrice}
-                                        class="w-full bg-white border border-gray-200 text-sm p-3 rounded-none outline-none focus:border-brand-accent font-mono" 
-                                    />
+                                    Tipo de Operación
+                                </label>
+                                <div class="relative group">
+                                    <select
+                                        name="transaction_type"
+                                        onchange="this.form.submit()"
+                                        class="w-full bg-white border border-gray-200 text-[#0A192F] text-sm p-4 rounded-none outline-none focus:border-brand-accent transition-all font-serif appearance-none cursor-pointer"
+                                    >
+                                        <option value="">Todos</option>
+                                        <option
+                                            value="sale"
+                                            selected={transactionType ===
+                                                "sale"}>Venta</option
+                                        >
+                                        <option
+                                            value="rent"
+                                            selected={transactionType ===
+                                                "rent"}>Alquiler</option
+                                        >
+                                    </select>
+                                    <div
+                                        class="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400"
+                                    >
+                                        <svg
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            class="h-4 w-4"
+                                            fill="none"
+                                            viewBox="0 0 24 24"
+                                            stroke="currentColor"
+                                        >
+                                            <path
+                                                stroke-linecap="round"
+                                                stroke-linejoin="round"
+                                                stroke-width="2"
+                                                d="M19 9l-7 7-7-7"></path>
+                                        </svg>
+                                    </div>
                                 </div>
                             </div>
 
-                            <button 
-                                type="submit"
-                                class="w-full bg-brand-surface text-white py-4 px-6 text-[10px] font-bold uppercase tracking-widest hover:bg-brand-accent transition-all duration-500 shadow-lg shadow-brand-surface/20"
-                            >
-                                Aplicar Parámetros
-                            </button>
+                            <!-- Property Type Filter -->
+                            <div class="space-y-4">
+                                <label
+                                    class="block text-xs font-bold uppercase tracking-[0.2em] text-gray-400"
+                                >
+                                    Tipo de Propiedad
+                                </label>
+                                <div class="relative group">
+                                    <select
+                                        name="property_type"
+                                        onchange="this.form.submit()"
+                                        class="w-full bg-white border border-gray-200 text-[#0A192F] text-sm p-4 rounded-none outline-none focus:border-brand-accent transition-all font-serif appearance-none cursor-pointer"
+                                    >
+                                        <option value="">Todos</option>
+                                        <option
+                                            value="house"
+                                            selected={propertyType === "house"}
+                                            >Casas</option
+                                        >
+                                        <option
+                                            value="apartment"
+                                            selected={propertyType ===
+                                                "apartment"}
+                                            >Apartamentos</option
+                                        >
+                                        <option
+                                            value="lot"
+                                            selected={propertyType === "lot"}
+                                            >Lotes y Terrenos</option
+                                        >
+                                        <option
+                                            value="commercial"
+                                            selected={propertyType ===
+                                                "commercial"}>Comercial</option
+                                        >
+                                    </select>
+                                    <div
+                                        class="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400"
+                                    >
+                                        <svg
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            class="h-4 w-4"
+                                            fill="none"
+                                            viewBox="0 0 24 24"
+                                            stroke="currentColor"
+                                        >
+                                            <path
+                                                stroke-linecap="round"
+                                                stroke-linejoin="round"
+                                                stroke-width="2"
+                                                d="M19 9l-7 7-7-7"></path>
+                                        </svg>
+                                    </div>
+                                </div>
+                            </div>
 
-                            <a 
-                                href="/propiedades" 
-                                class="block text-center text-[10px] text-gray-400 uppercase tracking-widest hover:text-brand-accent transition-all"
-                            >
-                                Resetear Búsqueda
-                            </a>
+                            <!-- Category Filter -->
+                            <div class="space-y-4">
+                                <label
+                                    class="block text-xs font-bold uppercase tracking-[0.2em] text-gray-400"
+                                >
+                                    Provincia / Región
+                                </label>
+                                <div class="relative group">
+                                    <select
+                                        name="category"
+                                        onchange="this.form.submit()"
+                                        class="w-full bg-white border border-gray-200 text-[#0A192F] text-sm p-4 rounded-none outline-none focus:border-brand-accent transition-all font-serif appearance-none cursor-pointer"
+                                    >
+                                        <option value=""
+                                            >Todas las regiones</option
+                                        >
+                                        {
+                                            categories.map((cat) => (
+                                                <option
+                                                    value={cat.name}
+                                                    selected={
+                                                        selectedCategory ===
+                                                        cat.name
+                                                    }
+                                                >
+                                                    {cat.name} ({cat.count})
+                                                </option>
+                                            ))
+                                        }
+                                    </select>
+                                    <div
+                                        class="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400"
+                                    >
+                                        <svg
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            class="h-4 w-4"
+                                            fill="none"
+                                            viewBox="0 0 24 24"
+                                            stroke="currentColor"
+                                        >
+                                            <path
+                                                stroke-linecap="round"
+                                                stroke-linejoin="round"
+                                                stroke-width="2"
+                                                d="M19 9l-7 7-7-7"></path>
+                                        </svg>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Subcategory Filter -->
+                            {
+                                selectedCategory &&
+                                    (() => {
+                                        const currentCat = categories.find(
+                                            (c) => c.name === selectedCategory,
+                                        );
+                                        if (
+                                            currentCat?.subcategories &&
+                                            currentCat.subcategories.length > 0
+                                        ) {
+                                            return (
+                                                <div class="space-y-4 animate-fade-in">
+                                                    <label class="block text-xs font-bold uppercase tracking-[0.2em] text-gray-400">
+                                                        Zona Específica
+                                                    </label>
+                                                    <div class="relative group">
+                                                        <select
+                                                            name="subcategory"
+                                                            class="w-full bg-white border border-gray-200 text-[#0A192F] text-sm p-4 rounded-none outline-none focus:border-brand-accent transition-all font-serif appearance-none cursor-pointer"
+                                                        >
+                                                            <option value="">
+                                                                Todas las zonas
+                                                            </option>
+                                                            {currentCat.subcategories.map(
+                                                                (sub) => (
+                                                                    <option
+                                                                        value={
+                                                                            sub.name
+                                                                        }
+                                                                        selected={
+                                                                            selectedSubcategory ===
+                                                                            sub.name
+                                                                        }
+                                                                    >
+                                                                        {
+                                                                            sub.name
+                                                                        }{" "}
+                                                                        (
+                                                                        {
+                                                                            sub.count
+                                                                        }
+                                                                        )
+                                                                    </option>
+                                                                ),
+                                                            )}
+                                                        </select>
+                                                        <div class="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">
+                                                            <svg
+                                                                xmlns="http://www.w3.org/2000/svg"
+                                                                class="h-4 w-4"
+                                                                fill="none"
+                                                                viewBox="0 0 24 24"
+                                                                stroke="currentColor"
+                                                            >
+                                                                <path
+                                                                    stroke-linecap="round"
+                                                                    stroke-linejoin="round"
+                                                                    stroke-width="2"
+                                                                    d="M19 9l-7 7-7-7"
+                                                                />
+                                                            </svg>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            );
+                                        }
+                                        return null;
+                                    })()
+                            }
+
+                            <!-- Price Range -->
+                            <div class="space-y-4">
+                                <label
+                                    class="block text-xs font-bold uppercase tracking-[0.2em] text-gray-400"
+                                >
+                                    Rango de Inversión (USD)
+                                </label>
+                                <div class="grid grid-cols-1 gap-4">
+                                    <div class="relative">
+                                        <span
+                                            class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-xs"
+                                            >$</span
+                                        >
+                                        <input
+                                            type="number"
+                                            name="minPrice"
+                                            placeholder="Mínimo"
+                                            value={minPrice}
+                                            class="w-full bg-white border border-gray-200 text-sm p-4 pl-8 rounded-none outline-none focus:border-brand-accent font-mono transition-all"
+                                        />
+                                    </div>
+                                    <div class="relative">
+                                        <span
+                                            class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-xs"
+                                            >$</span
+                                        >
+                                        <input
+                                            type="number"
+                                            name="maxPrice"
+                                            placeholder="Máximo"
+                                            value={maxPrice}
+                                            class="w-full bg-white border border-gray-200 text-sm p-4 pl-8 rounded-none outline-none focus:border-brand-accent font-mono transition-all"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="pt-6 space-y-4">
+                                <button
+                                    type="submit"
+                                    class="w-full bg-[#0A192F] text-white py-5 px-6 text-xs font-bold uppercase tracking-[0.3em] hover:bg-brand-accent transition-all duration-500 shadow-xl shadow-blue-900/10 active:scale-[0.98]"
+                                >
+                                    Actualizar Resultados
+                                </button>
+
+                                <a
+                                    href="/propiedades"
+                                    class="block text-center text-[10px] text-gray-400 uppercase tracking-widest hover:text-brand-accent transition-all font-bold group pt-2"
+                                >
+                                    <span
+                                        class="border-b border-transparent group-hover:border-brand-accent transition-all"
+                                        >Limpiar Filtros</span
+                                    >
+                                </a>
+                            </div>
                         </form>
                     </div>
                 </aside>
 
                 <!-- Grid Results -->
                 <div class="flex-1">
-                    {error ? (
-                        <div class="text-center py-20 bg-red-50 text-red-600 rounded-sm border border-red-100">
-                             <p class="font-serif italic">{error}</p>
-                        </div>
-                    ) : products.length > 0 ? (
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
-                            {products.map((product) => (
-                                <ListingCard listing={product} />
-                            ))}
-                        </div>
-                    ) : (
-                        <div class="flex flex-col items-center justify-center py-32 rounded-sm border border-dashed border-gray-200 bg-gray-50/30 text-center px-6">
-                            <div class="w-20 h-20 mb-6 bg-white rounded-full flex items-center justify-center text-gray-200 shadow-sm">
-                                🔍
+                    {
+                        error ? (
+                            <div class="text-center py-20 bg-red-50 text-red-600 rounded-sm border border-red-100">
+                                <p class="font-serif italic">{error}</p>
                             </div>
-                            <h3 class="text-2xl font-serif text-brand-surface mb-3">Sin Coincidencias</h3>
-                            <p class="text-gray-400 text-sm max-w-xs mx-auto leading-loose">
-                                No se encontraron activos bajo los parámetros actuales. Ajuste los filtros para ver más opciones.
-                            </p>
-                        </div>
-                    )}
+                        ) : products.length > 0 ? (
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+                                {products.map((product) => (
+                                    <ListingCard listing={product} />
+                                ))}
+                            </div>
+                        ) : (
+                            <div class="flex flex-col items-center justify-center py-32 rounded-lg border border-dashed border-gray-200 bg-gray-50/50 text-center px-10 animate-fade-in">
+                                <div class="mb-8 p-6 bg-white rounded-full shadow-sm text-gray-300">
+                                    <svg
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        width="48"
+                                        height="48"
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        stroke-width="1"
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                    >
+                                        <>
+                                            <path d="m21 21-6-6m2-5a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z" />
+                                            <path d="M10 10h.01" />
+                                        </>
+                                    </svg>
+                                </div>
+                                <h3 class="text-2xl font-serif text-[#0A192F] mb-4">
+                                    Búsqueda sin resultados públicos
+                                </h3>
+                                <p class="text-gray-500 text-sm max-w-md mx-auto leading-relaxed mb-8">
+                                    No encontramos propiedades publicadas con
+                                    estos criterios. Sin embargo, manejamos un{" "}
+                                    <strong>
+                                        inventario privado (Off-Market)
+                                    </strong>{" "}
+                                    para clientes calificados.
+                                </p>
+                                <div class="flex flex-col sm:flex-row gap-4">
+                                    <a
+                                        href="/contacto"
+                                        class="px-8 py-3 bg-[#0A192F] text-white text-[10px] font-bold uppercase tracking-widest hover:bg-brand-accent hover:text-[#0A192F] transition-all rounded-sm shadow-lg"
+                                    >
+                                        Consultar Inventario Privado
+                                    </a>
+                                    <a
+                                        href="/propiedades"
+                                        class="px-8 py-3 border border-gray-200 text-gray-600 text-[10px] font-bold uppercase tracking-widest hover:border-gray-900 hover:text-gray-900 transition-all rounded-sm bg-white"
+                                    >
+                                        Limpiar Filtros
+                                    </a>
+                                </div>
+                            </div>
+                        )
+                    }
                 </div>
             </div>
         </div>
